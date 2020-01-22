@@ -1,3 +1,21 @@
+## Getting started with this repo
+
+This repo uses git submodules. The docker related code is stored in this repo
+but then we have the inat and API codebases as submodules so we can pin the
+commit and make building easy.
+
+Here's how you clone the repo:
+```bash
+git clone ...
+git submodule init # gets the submodules ready
+git submodule update # clones the submodules and checks out the right commit
+```
+
+Then in the future, whenever you do a `git pull`, keep an eye out for updates to
+the submodules and run a `git submoduel update` (FIXME or maybe a `git submodule
+sync`?). If you're unsure, just run it. It's idempotent.
+
+
 ## Quickstart getting a stack running
   1. get yourself a host machine
   1. install Docker (tested with version 18.09.7, build 2d0083d)
