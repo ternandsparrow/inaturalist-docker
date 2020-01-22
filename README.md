@@ -1,3 +1,29 @@
+## What is this?
+This repo has the docker code to:
+ - build a docker image for inaturalist (the Ruby app)
+ - build a docker image for the inaturalist API (the NodeJS app)
+ - run a docker-compose stack including all the other parts of the system:
+     postgres, elasticsearch, etc
+
+We developed this so we can easily spin up a dev environment for development of
+an app that communicates with iNat.
+
+**This is not production ready**. It's not even complete. It works as a simple
+dev server but there is still a lot more of the configuration that needs to be
+configurable via env vars. Basically, it's done to the point that it served our
+purposes.
+
+Think carefully before using this to run your own production instance of inat.
+Quote taken from [the inat developers
+page](https://www.inaturalist.org/pages/developers):
+> If you're considering forking our web app code in order to build a narrower
+> version of iNat, please talk to us first! While we welcome forks to the
+> software, we don't want to fork our community. Social networks lose their value
+> when they fragment, so if you're thinking of making "iNat for Country X" or
+> "iNat for Lepidopterists" or something, let's discuss ways that we can
+> incorporate your needs into our existing infrastructure. We have a mechanism for
+> localization through our international iNaturalist Network.
+
 ## Getting started with this repo
 
 This repo uses git submodules. The docker related code is stored in this repo
