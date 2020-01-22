@@ -1,0 +1,182 @@
+version: '3.7'
+services:
+  inat:
+    build: ./inat/
+    image: inaturalist/inat_app:${INAT_TAG:-dev}
+    container_name: inat_app
+    restart: unless-stopped
+    init: true
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASS: ${DB_PASSWORD}
+      ES_HOST: es
+      MAIL_HOST: ${MAIL_HOST:-localhost} # default to failing but not annoying another server
+      MAIL_USER: ${MAIL_USER}
+      MAIL_DOMAIN: ${MAIL_DOMAIN}
+      MAIL_PASS: ${MAIL_PASS}
+      MAIL_PORT: ${MAIL_PORT}
+      MEMCACHED_HOST: memcached
+      PUBLIC_INAT_API_URL: ${PUBLIC_INAT_API_URL}
+      PUBLIC_URL: ${PUBLIC_INAT_APP_URL}
+      VIRTUAL_HOST: ${PUBLIC_INAT_APP_HOST}
+      LETSENCRYPT_HOST: ${PUBLIC_INAT_APP_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      FAST_START: ${INAT_APP_SKIP_OPTIONAL_FIRST_RUN_ITEMS}
+      RAILS_ENV_NAME: ${RAILS_ENV:-development}
+      # \/ only first run: these are only used on first run against a clean DB
+      SITE_NAME: ${INAT_SITE_NAME}
+      SITE_NAME_SHORT: ${INAT_SITE_NAME_SHORT}
+      EMAIL_NOREPLY: ${INAT_EMAIL_NOREPLY}
+      # /\ only first run
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_BROWSER_API_KEY}
+      RAILS_SESSION_KEY: ${INAT_COOKIE_SESSION_KEY:-_devinat_session}
+      # FIXME add all other vars we have in entrypoint.sh
+    volumes:
+      - "inat-pgdata:/pgdata"
+      - "inat-attachments:/srv/inat/public/attachments"
+      - "inat-config:/srv/inat_config"
+      - "inat-bulk-uploads:/srv/inat/tmp/page_cache/bulk_observation_files"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+  inat_delayed_job:
+    image: inaturalist/inat_app:${INAT_TAG:-dev}
+    entrypoint: bash -c "/srv/inat/docker/symlink-config-files-from-volume.sh && /srv/inat/script/delayed_job run"
+    container_name: inat_dj
+    restart: unless-stopped
+    init: true
+    # we let the main inat container do the heavy lifting then we use the
+    # built docker image and steal the generated config files via a volume
+    volumes:
+      - "inat-config:/srv/inat_config"
+      - "inat-bulk-uploads:/srv/inat/tmp/page_cache/bulk_observation_files"
+    deploy:
+      resources: # this is why we use the --compatibility flag to docker-compose
+        limits:
+          memory: 5G
+    depends_on:
+      - inat # if inat restarts, we might have new config files
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+  inatapi:
+    build: ./inat-api/
+    image: inaturalist/inat_api:${INAT_API_TAG:-dev}
+    container_name: inat_api
+    restart: unless-stopped
+    init: true
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASS: ${DB_PASSWORD}
+      ES_HOST: es
+      PUBLIC_INAT_APP_URL: ${PUBLIC_INAT_APP_URL}
+      PUBLIC_URL: ${PUBLIC_INAT_API_URL}
+      VIRTUAL_HOST: ${PUBLIC_INAT_API_HOST}
+      LETSENCRYPT_HOST: ${PUBLIC_INAT_API_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+  memcached:
+    image: memcached:1.5-alpine
+    container_name: inat_memcached
+    restart: unless-stopped
+    # FIXME do we need to pass '-m 64' to the entrypoint to limit memory?
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+  db:
+    image: mdillon/postgis:11-alpine
+    container_name: inat_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - "inat-pgdata:/var/lib/postgresql/data"
+      - "./postgis/setup-template.sh:/docker-entrypoint-initdb.d/setup-template.sh"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+  es:
+    build: ./elasticsearch/
+    image: inat/elasticsearch:${ES_TAG:-dev}
+    container_name: inat_es
+    restart: unless-stopped
+    environment:
+      - 'discovery.type=single-node'
+      - 'TAKE_FILE_OWNERSHIP=1' # if they change UID between versions, this will fix that
+    # FIXME need to set `sysctl -w vm.max_map_count=262144` on host
+    ports:
+      - 39200:9200 # FIMXE hide eventually, or let nginx route to it
+    volumes:
+      - 'inat-esdata:/usr/share/elasticsearch/data'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine-0.7.0
+    ports:
+      - "${SSL_EXTERNAL_LISTEN_PORT:-443}:443"
+      - "${NONSSL_EXTERNAL_LISTEN_PORT:-80}:80"
+    restart: unless-stopped
+    container_name: inat_nginx
+    networks:
+      default:
+        aliases: # so whatever we set externaly can be resolved inside the docker network
+          - ${PUBLIC_INAT_APP_HOST:-dontexplodeondown} # when you run 'docker-compose down', these values aren't set and thrown a non-unique error :(
+          - ${PUBLIC_INAT_API_HOST}
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - inat-nginx-certs:/etc/nginx/certs:ro
+      - inat-nginx-vhostd:/etc/nginx/vhost.d
+      - inat-nginx-html:/usr/share/nginx/html
+      - ./nginx/inat.conf:/etc/nginx/conf.d/inat.conf:ro
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion:v1.12
+    container_name: inat_le
+    restart: unless-stopped
+    init: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - inat-nginx-certs:/etc/nginx/certs
+      - inat-nginx-vhostd:/etc/nginx/vhost.d
+      - inat-nginx-html:/usr/share/nginx/html
+    entrypoint: bash -c '[ "$DISABLE_LETSENCRYPT" = true ] && (echo "LE disabled, sleeping" && sleep 9999999999999) || /app/entrypoint.sh /app/start.sh'
+    environment:
+      DISABLE_LETSENCRYPT: ${DISABLE_LETSENCRYPT:-false}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 100m
+
+volumes:
+  inat-pgdata:
+  inat-config:
+  inat-attachments:
+  inat-esdata:
+  inat-nginx-certs:
+  inat-nginx-vhostd:
+  inat-nginx-html:
+  inat-bulk-uploads:

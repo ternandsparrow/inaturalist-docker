@@ -1,0 +1,71 @@
+#!/bin/bash
+# starts, or restarts, the docker stack
+set -euo pipefail
+cd `dirname "$0"`
+
+# uncomment when you have TLS on nginx, so public URLs will use SSL/TLS/HTTPS.
+# You want this when running in prod!
+# export IS_TLS=s
+
+# change to false to enable LetsEncrypt. You don't want it to run during dev, so only
+# enable for public deployment
+export DISABLE_LETSENCRYPT=true
+
+# uncomment to enable prod mode on the Rails server
+# export RAILS_ENV=production
+
+# Google Maps API key, this key requires access to the following:
+#  - Geocoding API
+#  - Maps JavaScript API
+#  - Places API
+export GOOGLE_MAPS_BROWSER_API_KEY=goGetYourselfAKey  # TODO change me
+
+# change to 'true' to skip optional tasks (see ./inat/entrypoint.sh for task
+# list). Intended to shorten the start time during repeated restarting in dev.
+# For a longer running instance, don't skip these items.
+export INAT_APP_SKIP_OPTIONAL_FIRST_RUN_ITEMS=false
+
+# The email address that LetsEncrypt notifications (of cert expiry) will be
+# sent to
+export LETSENCRYPT_EMAIL=changeme@example.com  # TODO change me
+
+# Password for the database user, only works on first run (or after deleting
+# data volumes)
+export DB_PASSWORD=somepassword             # TODO change me
+
+# public DNS that this app responds to (used to configure Rails).
+export PUBLIC_INAT_APP_HOST=inat.local      # TODO change me
+export PUBLIC_INAT_APP_URL=http${IS_TLS:-}://${PUBLIC_INAT_APP_HOST}
+
+# Details to access the API container *both* externally (it's sent to the
+# client) and in the docker stack (Rails makes calls)
+export PUBLIC_INAT_API_HOST=api.inat.local  # TODO change me
+export PUBLIC_INAT_API_URL=http${IS_TLS:-}://${PUBLIC_INAT_API_HOST}/v1
+
+# iNat site settings, only used on first run
+#  Site name: used in various spots throughout the web UI and in emails
+export INAT_SITE_NAME='iNaturalist Docker Instance'
+export INAT_SITE_NAME_SHORT='iNat Docker'
+#  Email address that emails are sent *from*. Your SMTP server should
+#  allow sending from this address
+export INAT_EMAIL_NOREPLY=norely@changeme.local  # TODO change me
+
+# uncomment to set the cookie key that stores the session token
+# export INAT_COOKIE_SESSION_KEY=_devinat_session
+
+# details for a mail server so we can send emails. Uses Ruby's ActionMailer
+# note: config for address that emails are sent *from* in site settings above
+export MAIL_HOST=mail.local
+export MAIL_USER=user
+export MAIL_PASS=pass
+# mail domain differs depending on your SMTP service but it's likely to be
+# either the full email you use to send emails from or just the @<domain>
+export MAIL_DOMAIN=$INAT_EMAIL_NOREPLY  # optional, change me
+# export MAIL_AUTH_TYPE=plain  # default plain, can also be login or cram_md5
+# export MAIL_PORT=587  # default 587
+
+echo "[INFO] $(date) - starting stack"
+# using compatibility flag (from https://stackoverflow.com/a/57135933/1410035)
+# to get mem limits working
+docker-compose --compatibility up -d $@
+echo '[INFO] stack started'

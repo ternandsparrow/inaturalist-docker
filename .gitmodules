@@ -1,0 +1,12 @@
+[submodule "inaturalist"]
+	path = inat/inaturalist
+	url = git@github.com:ternandsparrow/inaturalist.git
+[submodule "iNaturalistAPI"]
+	path = inat-api/iNaturalistAPI
+	url = git@github.com:ternandsparrow/iNaturalistAPI.git
+[submodule "inat-api/iNaturalistAPI"]
+	url = https://github.com/ternandsparrow/iNaturalistAPI.git
+	path = inat-api/iNaturalistAPI
+[submodule "inat/inaturalist"]
+	url = https://github.com/inaturalist/inaturalist.git
+	path = inat/inaturalist
