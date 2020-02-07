@@ -59,6 +59,9 @@ base: &base
     - Hawaii
     - Alaska
 
+  jwt_secret: ${JWT_SECRET:-secret}
+  jwt_application_secret: ${JWT_APPLICATION_SECRET:-application_secret}
+
   rest_auth:
       # See vendor/plugins/restful_authentication/notes/Tradeoffs.txt for more info
       REST_AUTH_SITE_KEY: ${REST_AUTH_SITE_KEY:-09af09af09af09af09af09af09af09af09af09af}

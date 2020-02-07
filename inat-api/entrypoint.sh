@@ -31,6 +31,8 @@ module.exports = {
   // Whether the Rails app supports SSL requests. For local dev assume it does not
   apiHostSSL: false,
   writeHostSSL: false,
+  jwtSecret: '${JWT_SECRET:-secret}',                        // must match config on Rails
+  jwtApplicationSecret: '${JWT_APPLICATION_SECRET:-secret}', // must match config on Rails
   elasticsearch: {
     host: "$esHost:$esPort",
     geoPointField: "location",
