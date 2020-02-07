@@ -180,4 +180,33 @@ installed.
        code_verifier=$codeVerifier
       ```
   1. save and run the script
-  1. the response will contain your token
+  1. the response will contain your token (the `access_token` field), it will look something like:
+      ```json
+      {
+        "access_token": "5ca26e9aaaaaa6fa0116c13869ad8fd7a8e118d32b6a0a2aed37f4301cb32029",
+        "created_at": 1581041101,
+        "scope": "write login",
+        "token_type": "Bearer"
+      }
+      ```
+
+### Exchange an iNat token for an iNat API JWT
+The iNat (Ruby on Rails) server uses a different authentication mechanism from
+the iNat API (built with NodeJS). Now you have the token from the iNat server
+(step above) you can use that to get a JWT that can be used for the iNat API.
+
+  1. run the following (note: we still use some env vars from)
+      ```bash
+      # TODO YOU need to update all these values
+      inatServerDomain='https://your.inat.instance' # the URL of your iNat instance (use HTTPS if needed)
+      inatToken='access_token-from-steps-above'
+
+      http -v $inatServerDomain/users/api_token \
+        Authorization:"Bearer $inatToken"
+      ```
+  1. the response will be your JWT, something like:
+      ```json
+      {
+        "api_token": "eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjoxLCJvYXV0aaaaaaasaWNhdGlvbl9pZCI6MiwiZXhwIjoxNTgxMTI3MDc4fQ.Ti4aSGEylor-p60MyQCyUAV2I6SO-nEYzmyVeo3sQ1gTNK0HNdQhieU4zqJpyABYtb_C8sjytA8fwFMG4KhTSQ"
+      }
+      ```
