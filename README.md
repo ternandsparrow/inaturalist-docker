@@ -38,8 +38,8 @@ git submodule update # clones the submodules and checks out the right commit
 ```
 
 Then in the future, whenever you do a `git pull`, keep an eye out for updates to
-the submodules and run a `git submoduel update` (FIXME or maybe a `git submodule
-sync`?). If you're unsure, just run it. It's idempotent.
+the submodules and run a `git submoduel update`. If you're unsure, just run it.
+It's idempotent.
 
 
 ## Quickstart getting a stack running
