@@ -82,6 +82,8 @@ It's idempotent.
 Running the start script with `--build` still relies on a cache of docker images
 to speed up rebuilds. If you see anything that looks like stale files in your
 docker builds, you can cache bust by running `docker-compose build --no-cache`.
+You can also supply a service name (just a positional param) to only build a
+single service.
 
 ## Connecting to Postgres
 The container doesn't expose a post so you can't connect to it from outside but

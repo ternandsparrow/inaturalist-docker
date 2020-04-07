@@ -5,16 +5,16 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd `dirname "$0"`/..
 
 siteUrl=${PUBLIC_URL} # will be inlined into HTML for the client so must be publicly resolvable
+isDisableDevAssetsDebug=${DISABLE_DEV_ASSETS_DEBUG:-0}
 dbHost=${DB_HOST:?}
 dbUser=${DB_USER:?}
 dbPass=${DB_PASS:?}
 esHost=${ES_HOST:?}
 esPort=${ES_PORT:-9200}
 inatApiUrl=${PUBLIC_INAT_API_URL}
-# FIXME work needs to be done for env=production, currently it fails to start
-theRailsEnv=${RAILS_ENV_NAME:-development}
 # FIXME get these files, build them into the Docker image, update path
 tilestacheFilesPath=/Users/kueda/projects/TileStache/data
+# note RAILS_ENV will affect all rake and rails commands (in a good way)
 
 # FIXME it would be nice to have a single database that this app uses. Rails
 # doesn't like that and you need to define a separate DB for each env (they
@@ -36,17 +36,18 @@ login: &login
   password: $dbPass
   template: template_postgis
 
-development:
+development: &dev
   <<: *login
   database: $inatDbName
 
 test:
-  <<: *login
-  database: inaturalist_test
+  <<: *dev
+
+prod_dev:
+  <<: *dev
 
 production:
-  <<: *login
-  database: inaturalist_production
+  <<: *dev
 EOF
 
 cat <<EOF > $CONFIG_VOL_DIR/config.yml
@@ -182,6 +183,9 @@ development:
 test:
     <<: *base
 
+prod_dev:
+    <<: *base
+
 production:
     <<: *base
 EOF
@@ -197,14 +201,17 @@ EOF
 
 cat <<EOF > $CONFIG_VOL_DIR/secrets.yml
 <% config = YAML.load(File.open("#{Rails.root}/config/config.yml")) %>
-development:
+development: &dev
   secret_key_base: <%= config[Rails.env]['rails']['secret'] %>
 
 test:
-  secret_key_base: <%= config[Rails.env]['rails']['secret'] %>
+  <<: *dev
+
+prod_dev:
+  <<: *dev
 
 production:
-  secret_key_base: <%= config[Rails.env]['rails']['secret'] %>
+  <<: *dev
 EOF
 
 # FIXME do we even need memcached for non-prod deployments?
@@ -388,10 +395,16 @@ else
   # FIXME can (should) we also run es:rebuild?
 fi
 
+if [ $isDisableDevAssetsDebug == 1 ]; then
+  # provides a slight speed-up in dev mode by allowing assets to be cached
+  echo "[INFO] disabling config.assets.debug for dev"
+  sed -i 's/\(\s*config.assets.debug\).*/\1 = false/' config/environments/development.rb
+fi
+
 # avoid stale assets after config changes
 rake assets:clobber
 
-# FIXME is this a production grade app server?
-echo "[INFO] running with rails env=$theRailsEnv"
-rails server --binding=0.0.0.0 \
-  --environment=$theRailsEnv
+# FIXME is this a production-ish grade app server?
+echo "[INFO] running with rails env=$RAILS_ENV"
+rails server \
+  --binding=0.0.0.0

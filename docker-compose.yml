@@ -23,7 +23,7 @@ services:
       LETSENCRYPT_HOST: ${PUBLIC_INAT_APP_HOST}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       FAST_START: ${INAT_APP_SKIP_OPTIONAL_FIRST_RUN_ITEMS}
-      RAILS_ENV_NAME: ${RAILS_ENV:-development}
+      RAILS_ENV: ${RAILS_ENV:-development}
       # \/ only first run: these are only used on first run against a clean DB
       SITE_NAME: ${INAT_SITE_NAME}
       SITE_NAME_SHORT: ${INAT_SITE_NAME_SHORT}
@@ -33,6 +33,7 @@ services:
       RAILS_SESSION_KEY: ${INAT_COOKIE_SESSION_KEY:-_devinat_session}
       JWT_SECRET: ${JWT_SECRET}
       JWT_APPLICATION_SECRET: ${JWT_APPLICATION_SECRET}
+      DISABLE_DEV_ASSETS_DEBUG: ${DISABLE_DEV_ASSETS_DEBUG}
       # FIXME add all other vars we have in entrypoint.sh
     volumes:
       - "inat-pgdata:/pgdata"
@@ -50,6 +51,8 @@ services:
     container_name: inat_dj
     restart: unless-stopped
     init: true
+    environment:
+      RAILS_ENV: ${RAILS_ENV:-development}
     # we let the main inat container do the heavy lifting then we use the
     # built docker image and steal the generated config files via a volume
     volumes:

@@ -11,8 +11,13 @@ cd `dirname "$0"`
 # enable for public deployment
 export DISABLE_LETSENCRYPT=true
 
-# uncomment to enable prod mode on the Rails server
+# uncomment one of the following to enable that mode on the Rails server
+# export RAILS_ENV=prod_dev
 # export RAILS_ENV=production
+
+# uncomment to get some of the prod mode speed boost without the other hassles
+# of switching mode (like the fact it doesn't even work at the time of writing)
+# export DISABLE_DEV_ASSETS_DEBUG=1
 
 # Google Maps API key, this key requires access to the following:
 #  - Geocoding API
