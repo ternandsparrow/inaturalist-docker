@@ -24,8 +24,12 @@ tilestacheFilesPath=/Users/kueda/projects/TileStache/data
 # prod modes but keep connecting to the same DB.
 inatDbName=inaturalist
 
-# set any of these env vars to 'true' to enable
+# set these env vars to 'true' to enable, we use string equality
 [ "${IS_ENABLE_GOOGLE_ANALYTICS:-false}" = true ] && enableGA='' || enableGA='#'
+
+# make sure delayed_job output goes to docker (and doesn't fill up the disk)
+rm -f log/delayed_job.log
+ln -s /dev/stdout log/delayed_job.log
 
 cat <<EOF > $CONFIG_VOL_DIR/database.yml
 login: &login

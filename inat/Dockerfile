@@ -20,7 +20,8 @@ RUN \
 ENV CONFIG_VOL_DIR=/srv/inat_config
 RUN \
   ./node_modules/.bin/gulp webpack && \
-  rm config/*.yml.example
+  rm config/*.yml.example && \
+  mkdir -p log/
 
 EXPOSE 3000
 ENTRYPOINT ["/bin/bash", "./docker/entrypoint.sh"]
