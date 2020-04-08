@@ -14,14 +14,15 @@ esPort=${ES_PORT:-9200}
 srid=4326
 tempDirPath=${TEMP_DIR_PATH:-/tmp}
 
+# copy the logic in ../inat/inaturalist/lib/elastic_model/acts_as_elastic_model.rb
+# this is required for the API to hit the same ES indexes as Rails
+if [ "$NODE_ENV" == "prod_dev" ]; then
+  # FIXME it would be nice if this logic also affected `docker exec` shells
+  export NODE_ENV=production
+fi
+
 cat <<EOF > config.js
-let environment = "development";
-if ( global && global.config && global.config.environment ) {
-  environment = global.config.environment; // eslint-disable-line prefer-destructuring
-}
-if ( process && process.env && process.env.NODE_ENV ) {
-  environment = process.env.NODE_ENV;
-}
+const environment = "${NODE_ENV:-development}"
 module.exports = {
   environment,
   // Host running the iNaturalist Rails app

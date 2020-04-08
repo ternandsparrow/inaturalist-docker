@@ -80,6 +80,7 @@ services:
       DB_USER: postgres
       DB_PASS: ${DB_PASSWORD}
       ES_HOST: es
+      NODE_ENV: ${RAILS_ENV:-development}
       PUBLIC_INAT_APP_URL: ${PUBLIC_INAT_APP_URL}
       PUBLIC_URL: ${PUBLIC_INAT_API_URL}
       VIRTUAL_HOST: ${PUBLIC_INAT_API_HOST}
