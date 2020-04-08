@@ -1,2 +1,3 @@
 !elasticsearch/
 start-or-restart-stack.sh
+r.sh

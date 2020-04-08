@@ -15,6 +15,11 @@ export DISABLE_LETSENCRYPT=true
 # export RAILS_ENV=prod_dev
 # export RAILS_ENV=production
 
+# this has no effect in RAILS_ENV=development, but for RAILS_ENV=prod* you have
+# S3 force enabled, which is annoying so this will force it back off
+export DISABLE_RAILS_S3=1
+
+
 # uncomment to get some of the prod mode speed boost without the other hassles
 # of switching mode (like the fact it doesn't even work at the time of writing)
 # export DISABLE_DEV_ASSETS_DEBUG=1

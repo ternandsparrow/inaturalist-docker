@@ -5,7 +5,6 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd `dirname "$0"`/..
 
 siteUrl=${PUBLIC_URL} # will be inlined into HTML for the client so must be publicly resolvable
-isDisableDevAssetsDebug=${DISABLE_DEV_ASSETS_DEBUG:-0}
 dbHost=${DB_HOST:?}
 dbUser=${DB_USER:?}
 dbPass=${DB_PASS:?}
@@ -16,15 +15,9 @@ inatApiUrl=${PUBLIC_INAT_API_URL}
 tilestacheFilesPath=/Users/kueda/projects/TileStache/data
 # note RAILS_ENV will affect all rake and rails commands (in a good way)
 
-# FIXME it would be nice to have a single database that this app uses. Rails
-# doesn't like that and you need to define a separate DB for each env (they
-# can't be the same). We might be able to work around this by branching based
-# on the env name and settings 'inaturalist' as our main DB name and generating
-# something else for the unused envs. This would let us swap between dev and
-# prod modes but keep connecting to the same DB.
 inatDbName=inaturalist
 
-# set these env vars to 'true' to enable, we use string equality
+# set these env vars \/ to 'true' to enable, we use string equality
 [ "${IS_ENABLE_GOOGLE_ANALYTICS:-false}" = true ] && enableGA='' || enableGA='#'
 
 # make sure delayed_job output goes to docker (and doesn't fill up the disk)
@@ -399,10 +392,15 @@ else
   # FIXME can (should) we also run es:rebuild?
 fi
 
-if [ $isDisableDevAssetsDebug == 1 ]; then
+if [ ${DISABLE_DEV_ASSETS_DEBUG:-0} == 1 ]; then
   # provides a slight speed-up in dev mode by allowing assets to be cached
   echo "[INFO] disabling config.assets.debug for dev"
   sed -i 's/\(\s*config.assets.debug\).*/\1 = false/' config/environments/development.rb
+fi
+
+if [ ${DISABLE_S3:-0} == 1 ]; then
+  echo "[INFO] force disabling S3 integration"
+  sed -i 's/CONFIG.usingS3 =.*/CONFIG.usingS3 = false/' config/application.rb
 fi
 
 # avoid stale assets after config changes
