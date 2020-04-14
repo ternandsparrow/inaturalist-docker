@@ -11,7 +11,8 @@ cd `dirname "$0"`
 # enable for public deployment
 export DISABLE_LETSENCRYPT=true
 
-# uncomment one of the following to enable that mode on the Rails server
+# uncomment one of the following to enable that mode on the Rails server,
+# default is 'development'
 # export RAILS_ENV=prod_dev
 # export RAILS_ENV=production
 
@@ -19,6 +20,9 @@ export DISABLE_LETSENCRYPT=true
 # S3 force enabled, which is annoying so this will force it back off
 export DISABLE_RAILS_S3=1
 
+# this has no effect in RAILS_ENV=development, but for RAILS_ENV=prod_dev you
+# still only have mail going to the console. This forces use of the smtp config
+# export ENABLE_RAILS_SMTP=1
 
 # uncomment to get some of the prod mode speed boost without the other hassles
 # of switching mode (like the fact it doesn't even work at the time of writing)

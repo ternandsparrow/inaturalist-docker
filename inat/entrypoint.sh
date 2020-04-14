@@ -394,6 +394,7 @@ fi
 
 if [ ${DISABLE_DEV_ASSETS_DEBUG:-0} == 1 ]; then
   # provides a slight speed-up in dev mode by allowing assets to be cached
+  # if you're not hacking *on* iNat, go for RAILS_ENV=prod_dev instead
   echo "[INFO] disabling config.assets.debug for dev"
   sed -i 's/\(\s*config.assets.debug\).*/\1 = false/' config/environments/development.rb
 fi
@@ -401,6 +402,17 @@ fi
 if [ ${DISABLE_S3:-0} == 1 ]; then
   echo "[INFO] force disabling S3 integration"
   sed -i 's/CONFIG.usingS3 =.*/CONFIG.usingS3 = false/' config/application.rb
+fi
+
+if [ ${ENABLE_SMTP:-0} == 1 ]; then
+  # otherwise emails just print to the logs
+  echo "[INFO] force enabling real SMTP"
+  # we're just toggling the comment (#) off, yeah it's brittle :(
+  sed -i \
+    -e 's/#\s*\(ActionMailer.*\)/\1/' \
+    -e 's/#\s*\(smtp_config_path.*\)/\1/' \
+    -e 's/#\s*\(config.action_mailer.*\)/\1/' \
+    config/environments/prod_dev.rb
 fi
 
 # avoid stale assets after config changes

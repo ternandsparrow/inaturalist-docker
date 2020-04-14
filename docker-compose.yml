@@ -25,6 +25,7 @@ services:
       FAST_START: ${INAT_APP_SKIP_OPTIONAL_FIRST_RUN_ITEMS}
       RAILS_ENV: ${RAILS_ENV:-development}
       DISABLE_S3: ${DISABLE_RAILS_S3}
+      ENABLE_SMTP: ${ENABLE_RAILS_SMTP}
       # \/ only first run: these are only used on first run against a clean DB
       SITE_NAME: ${INAT_SITE_NAME}
       SITE_NAME_SHORT: ${INAT_SITE_NAME_SHORT}
