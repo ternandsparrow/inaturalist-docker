@@ -155,6 +155,7 @@ services:
       - inat-nginx-certs:/etc/nginx/certs:ro
       - inat-nginx-vhostd:/etc/nginx/vhost.d
       - inat-nginx-html:/usr/share/nginx/html
+      - inat-nginx-dhparam:/etc/nginx/dhparam
       - ./nginx/inat.conf:/etc/nginx/conf.d/inat.conf:ro
     labels:
       - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
@@ -188,5 +189,6 @@ volumes:
   inat-esdata:
   inat-nginx-certs:
   inat-nginx-vhostd:
+  inat-nginx-dhparam:
   inat-nginx-html:
   inat-bulk-uploads:
