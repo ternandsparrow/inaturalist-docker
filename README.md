@@ -111,6 +111,11 @@ We have a script that will perform this for you:
 If you didn't want to connect to this DB, then you can use `\l` to list
 the available databases and connect to them with `\c <database name>`.
 
+## Listing ElasticSearch indexes
+Sometimes you'll get errors due to missing indexes in ES. You can get a list of
+which indexes exist in the server by hitting the endpoint
+http://<es-container-host-port>/_aliases?pretty=true.
+
 ## Debugging Ruby inside the Docker container
 
   1. edit the `docker-compose.yml` file to override the entrypoint for
