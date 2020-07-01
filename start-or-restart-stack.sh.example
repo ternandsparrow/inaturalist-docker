@@ -58,7 +58,6 @@ export PUBLIC_INAT_API_URL=http${IS_TLS:-}://${PUBLIC_INAT_API_HOST}/v1
 
 # configure the JWT secrets for both the Ruby on Rails app and the NodeJS API
 export JWT_SECRET=secret
-export JWT_APPLICATION_SECRET=secret
 
 # iNat site settings, only used on first run
 #  Site name: used in various spots throughout the web UI and in emails

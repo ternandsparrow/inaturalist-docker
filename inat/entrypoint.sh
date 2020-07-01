@@ -57,8 +57,8 @@ base: &base
     - Hawaii
     - Alaska
 
-  jwt_secret: ${JWT_SECRET:-secret}
-  jwt_application_secret: ${JWT_APPLICATION_SECRET:-application_secret}
+  jwt_secret: ${JWT_SECRET:-secret}             # config in Node API must match
+  jwt_application_secret: ${JWT_SECRET:-secret} # config in Node API must match
 
   rest_auth:
       # See vendor/plugins/restful_authentication/notes/Tradeoffs.txt for more info

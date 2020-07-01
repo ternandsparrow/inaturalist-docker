@@ -34,7 +34,6 @@ services:
       GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_BROWSER_API_KEY}
       RAILS_SESSION_KEY: ${INAT_COOKIE_SESSION_KEY:-_devinat_session}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_APPLICATION_SECRET: ${JWT_APPLICATION_SECRET}
       DISABLE_DEV_ASSETS_DEBUG: ${DISABLE_DEV_ASSETS_DEBUG}
       # FIXME add all other vars we have in entrypoint.sh
     volumes:
@@ -89,7 +88,6 @@ services:
       LETSENCRYPT_HOST: ${PUBLIC_INAT_API_HOST}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_APPLICATION_SECRET: ${JWT_APPLICATION_SECRET}
     logging:
       driver: "json-file"
       options:
