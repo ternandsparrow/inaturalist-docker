@@ -38,7 +38,7 @@ git submodule update # clones the submodules and checks out the right commit
 ```
 
 Then in the future, whenever you do a `git pull`, keep an eye out for updates to
-the submodules and run a `git submoduel update`. If you're unsure, just run it.
+the submodules and run a `git submodule update`. If you're unsure, just run it.
 It's idempotent.
 
 
@@ -51,7 +51,7 @@ It's idempotent.
   1. `vim start-or-restart-stack.sh` to add all the values it asks for
   1. `chmod +x start-or-restart-stack.sh`
   1. for the first time **only** after cloning `git submodule init`
-  1. everytime, make sure the submodule are up to date `git submodule update`
+  1. everytime, make sure the submodules are up to date `git submodule update`
   1. start the stack `./start-or-restart-stack.sh`
   1. watch the logs `docker logs -f inat_app` until Rails has started
   1. if you need to run the "only on first run" tasks, you can do it with:

@@ -60,5 +60,7 @@ module.exports = {
 }
 EOF
 
+node --version
+
 # FIXME do we need to use PM2?
 node app.js
