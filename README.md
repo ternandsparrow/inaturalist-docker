@@ -51,7 +51,8 @@ It's idempotent.
   1. `vim start-or-restart-stack.sh` to add all the values it asks for
   1. `chmod +x start-or-restart-stack.sh`
   1. for the first time **only** after cloning `git submodule init`
-  1. everytime, make sure the submodules are up to date `git submodule update`
+  1. everytime you pull new commits, make sure the submodules are up to date
+     `git submodule update`
   1. start the stack `./start-or-restart-stack.sh`
   1. watch the logs `docker logs -f inat_app` until Rails has started
   1. if you need to run the "only on first run" tasks, you can do it with:
@@ -114,7 +115,7 @@ the available databases and connect to them with `\c <database name>`.
 ## Listing ElasticSearch indexes
 Sometimes you'll get errors due to missing indexes in ES. You can get a list of
 which indexes exist in the server by hitting the endpoint
-http://<es-container-host-port>/_aliases?pretty=true.
+`http://<es-container-host-port>/_aliases?pretty=true`.
 
 ## Debugging Ruby inside the Docker container
 
