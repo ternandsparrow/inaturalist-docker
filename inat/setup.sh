@@ -1,9 +1,10 @@
 #!/bin/bash
-set -euo pipefail
+set -euxo pipefail
 cd `dirname "$0"`/..
 
+theHack='--no-check-certificate' # old wget doesn't trust LetsEncrypt
 # allow us to install postgres 11 client (9.6 is latest in Debian Stretch base)
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+wget $theHack --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
   | apt-key add -
 RELEASE=stretch # lsb_release isn't available at this point
 grep $RELEASE /etc/apt/sources.list || {
